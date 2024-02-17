@@ -8,6 +8,7 @@ import { ThemeProviderProps } from "next-themes/dist/types";
 
 import '@rainbow-me/rainbowkit/styles.css';
 import {
+  darkTheme,
   getDefaultConfig,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
@@ -15,10 +16,8 @@ import { WagmiProvider } from 'wagmi';
 import {
   mainnet,
   polygon,
-  optimism,
-  arbitrum,
-  base,
-  zora,
+  polygonMumbai,
+  polygonZkEvmTestnet,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -29,7 +28,7 @@ const queryClient = new QueryClient();
 const config = getDefaultConfig({
   appName: 'projectX',
   projectId: 'b4b96dd974332fe24cac9a91648749e7',
-  chains: [mainnet, polygon, optimism, arbitrum, base, zora],
+  chains: [mainnet, polygon, polygonMumbai],
   ssr: true,
 });
 
@@ -44,7 +43,17 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 	return (
 		<WagmiProvider config={config}>
 		<QueryClientProvider client={queryClient}>
-		  <RainbowKitProvider>
+		  <RainbowKitProvider
+        theme={darkTheme({
+          fontStack: 'system',
+          accentColor: '#7b3fe4',
+          accentColorForeground: 'white',
+          borderRadius: 'large',
+          overlayBlur: 'small',
+        })}
+        modalSize="compact"
+        initialChain={polygonMumbai}
+      >
 			<NextUIProvider navigate={router.push}>
 				<NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
 			</NextUIProvider>
