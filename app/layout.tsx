@@ -6,7 +6,6 @@ import { Providers } from "./providers";
 import { Navbar } from "@/components/navbar";
 import { Link } from "@nextui-org/link";
 import clsx from "clsx";
-import { WalletButton } from "@rainbow-me/rainbowkit";
 
 export const metadata: Metadata = {
 	title: {
