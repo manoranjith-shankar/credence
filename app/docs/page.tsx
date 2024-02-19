@@ -5,7 +5,7 @@ import useContractRead  from "@/components/hooks/useContractRead";
 import { useAccount } from "wagmi";
 
 export default function Docs() {
-  const address  = "0x67F5e3A51e1Dc06dDB408561D773c4C56D7E6771"; // Destructure directly for conciseness
+  const { address }  = useAccount()
 
   const { data, isLoading, error } = useContractRead(
     "isRegisteredUser", // Function name
