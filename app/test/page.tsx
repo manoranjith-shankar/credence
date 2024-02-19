@@ -3,10 +3,12 @@
 import { Button } from '@nextui-org/button'
 import React from 'react'
 import toast from 'react-hot-toast'
+import { useAccount } from 'wagmi'
 
 export default function Test() {
+  const {address} = useAccount()
   const notify = () => {
-    toast.loading(`your address for aicte_id is`)
+    toast.loading(`${address}`)
   }
 
   return (
