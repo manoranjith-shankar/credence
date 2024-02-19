@@ -18,7 +18,6 @@ import {
   mainnet,
   polygon,
   polygonMumbai,
-  polygonZkEvmTestnet,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
@@ -30,7 +29,7 @@ const config = getDefaultConfig({
   appName: 'projectX',
   projectId: 'b4b96dd974332fe24cac9a91648749e7',
   chains: [mainnet, polygon, polygonMumbai],
-  ssr: true,
+  ssr: false,
 });
 
 export interface ProvidersProps {

@@ -1,5 +1,5 @@
-const testContract = artifacts.require("testContract");
+const AppHandler = artifacts.require("AppHandler");
 
 module.exports = function(deployer) {
-  deployer.deploy(testContract);
+  deployer.deploy(AppHandler);
 };

@@ -1,9 +1,16 @@
-import { title } from "@/components/primitives";
+'use client'
 
-export default function DocsPage() {
-	return (
-		<div>
-			<h1 className={title()}>Docs</h1>
-		</div>
-	);
-}
+import React, { useEffect } from "react";
+import { useAccount } from "wagmi";
+
+const Blog = () => {
+  const account = useAccount();
+
+  useEffect(() => {
+    console.log(account);
+  }, [account]);
+
+  return <div>Blog Page</div>;
+};
+
+export default Blog;
