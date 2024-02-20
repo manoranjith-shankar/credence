@@ -1,26 +1,80 @@
 'use client'
 
-import React from 'react';
-import useContractRead  from "@/components/hooks/useContractRead";
-import { useAccount } from "wagmi";
+import React, { useState } from 'react';
+import useContractWrite  from '@/components/hooks/useContractWrite';
+import AppHandler from '@/backend/deployedContracts/AppHandler.json'
+const abi = AppHandler.abi
 
-export default function Docs() {
-  const { address }  = useAccount()
+function AddInstitution() {
 
-  const { data, isLoading, error } = useContractRead(
-    "isRegisteredUser", // Function name
-    address,
-  );
+  const { writeContract } = useContractWrite();
+  const [formData, setFormData] = useState({
+    aicteId: "",
+    name: "",
+    location: "",
+    email: "",
+    phoneNumber: ""
+  });
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+  const { aicteId, name, location, email, phoneNumber } = formData;
 
-  if (error) {
-    return <p>Error: {error.message}</p>;
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await writeContract({
+        abi,
+        address: '0x6b175474e89094c44da98b954eedeac495271d0f', // Update with your contract address
+        functionName: 'addInstitution',
+        args: [aicteId, name, location, email, phoneNumber]
+      });
+      console.log("Institution added successfully!");
+      // Reset form data after successful submission
+      setFormData({
+        aicteId: "",
+        name: "",
+        location: "",
+        email: "",
+        phoneNumber: ""
+      });
+    } catch (error) {
+      console.error("Error adding institution:", error);
+    }
+  };
 
   return (
-    <p>User registered: {data ? "Yes" : "No"}</p> // Conveying the boolean value clearly
+    <div>
+      <h2>Add Institution</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>AICTE ID:</label>
+          <input type="text" name="aicteId" value={aicteId} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Name:</label>
+          <input type="text" name="name" value={name} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Location:</label>
+          <input type="text" name="location" value={location} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input type="email" name="email" value={email} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Phone Number:</label>
+          <input type="tel" name="phoneNumber" value={phoneNumber} onChange={handleChange} required />
+        </div>
+        <button type="submit">Add Institution</button>
+      </form>
+    </div>
   );
 }
+
+export default AddInstitution;
