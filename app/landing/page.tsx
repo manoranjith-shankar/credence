@@ -7,12 +7,11 @@ import { title } from "@/components/primitives";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from 'next/navigation'
-// import { useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 
-export default function head() {
+export default function Landing() {
 
-  const isConnected = false;
-  // const address = useAccount().address;
+  const { isConnected } = useAccount();
   
   return (
     <div className="flex flex-col items-center gap-4">
