@@ -87,29 +87,75 @@ contract CredentialSystem {
         bool isVerified,
         uint64 institutionPhone
     ) public returns (string memory) {
-            require(isVerified == true, "Email verification required to confirm institution registration");
-            address institutionAdminAddress = msg.sender;
-            Institution memory newInstitution = Institution(institutionName, institutionRegisteredAddress, institutionEmail, institutionPhone, institutionAdminAddress);
-            institutions[aicteId] = newInstitution;
-            return aicteId;
+        require(isVerified == true, "Email verification required to confirm institution registration");
+        Institution storage newInstitution = institutions[aicteId];
+        require(newInstitution.institutionAdminAddress == address(0), "Institution already exists");
+        newInstitution.institutionName = institutionName;
+        newInstitution.institutionRegisteredAddress = institutionRegisteredAddress;
+        newInstitution.institutionEmail = institutionEmail;
+        newInstitution.institutionPhone = institutionPhone;
+        newInstitution.institutionAdminAddress = msg.sender;
+        return aicteId;
     }
 
     // Function to add a new company issuer
-    function addCompanyIssuer(string memory companyName, string memory companyRegistrationNumber, string memory companyRegistrationCertHash, string memory companyEmail, uint64 companyPhone, string memory companyRegisteredAddress, address companyAdminAddress) public {
-        Company memory newCompany = Company(companyName, companyRegistrationNumber, companyRegistrationCertHash, companyEmail, companyPhone, companyRegisteredAddress, companyAdminAddress);
-        companies[companyName] = newCompany;
+    function addCompanyIssuer(
+        string memory companyName,
+        string memory companyRegistrationNumber,
+        string memory companyRegistrationCertHash,
+        string memory companyEmail,
+        uint64 companyPhone, 
+        string memory companyRegisteredAddress, 
+        bool isVerified
+    ) public {
+        require(isVerified == true, "Email verification required to confirm company registration");
+        Company storage newCompany = companies[companyName];
+        require(newCompany.companyAdminAddress == address(0), "Company already exists");
+        newCompany.companyName = companyName;
+        newCompany.companyRegistrationNumber = companyRegistrationNumber;
+        newCompany.companyRegistrationCertHash = companyRegistrationCertHash;
+        newCompany.companyEmail = companyEmail;
+        newCompany.companyPhone = companyPhone;
+        newCompany.companyRegisteredAddress = companyRegisteredAddress;
+        newCompany.companyAdminAddress = msg.sender;
     }
 
     // Function to add a new event issuer
-    function addEventIssuer(string memory eventName, string memory eventOrganizer, string[] memory eventSponsors, string memory organizerRegistrationNumber, string memory organizerRegistrationCertHash, string memory organizerRegisteredAddress, uint64 organizerPhone, address organizerAdminAddress) public {
-        Event memory newEvent = Event(eventName, eventOrganizer, eventSponsors, organizerRegistrationNumber, organizerRegistrationCertHash, organizerRegisteredAddress, organizerPhone, organizerAdminAddress);
-        events[eventName] = newEvent;
+    function addEventIssuer(
+        string memory eventName, 
+        string memory eventOrganizer, 
+        string[] memory eventSponsors, 
+        string memory organizerRegistrationNumber, 
+        string memory organizerRegistrationCertHash, 
+        string memory organizerRegisteredAddress, 
+        uint64 organizerPhone, 
+        address organizerAdminAddress
+    ) public {
+        Event storage newEvent = events[eventName];
+        require(newEvent.organizerAdminAddress == address(0), "Event already exists");
+        newEvent.eventName = eventName;
+        newEvent.eventOrganizer = eventOrganizer;
+        newEvent.eventSponsors = eventSponsors;
+        newEvent.organizerRegistrationNumber = organizerRegistrationNumber;
+        newEvent.organizerRegistrationCertHash = organizerRegistrationCertHash;
+        newEvent.organizerRegisteredAddress = organizerRegisteredAddress;
+        newEvent.organizerPhone = organizerPhone;
+        newEvent.organizerAdminAddress = organizerAdminAddress;
     }
 
     // Function to add a new recipient
-    function addRecipient(string memory recipientName, string memory recipientEmail, string memory recipientPhone, address recipientAddress) public {
-        Recipient memory newRecipient = Recipient(recipientName, recipientEmail, recipientPhone, recipientAddress);
-        recipients[recipientName] = newRecipient;
+    function addRecipient(
+        string memory recipientName, 
+        string memory recipientEmail, 
+        string memory recipientPhone, 
+        address recipientAddress
+    ) public {
+        Recipient storage newRecipient = recipients[recipientName];
+        require(newRecipient.recipientAddress == address(0), "Recipient already exists");
+        newRecipient.recipientName = recipientName;
+        newRecipient.recipientEmail = recipientEmail;
+        newRecipient.recipientPhone = recipientPhone;
+        newRecipient.recipientAddress = recipientAddress;
     }
 
     // Add other functions as needed
