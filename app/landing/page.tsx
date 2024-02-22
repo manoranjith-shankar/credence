@@ -13,8 +13,6 @@ export default function head() {
 
   const isConnected = false;
   // const address = useAccount().address;
- 
- 
   
   return (
     <div className="flex flex-col items-center gap-4">
