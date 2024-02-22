@@ -46,6 +46,10 @@
     "truffle": "^5.11.5",
     "typescript": "5.0.4",
     "viem": "^2.7.9",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "zokrates-js": "^1.1.9"
+  },
+  "devDependencies": {
+    "raw-loader": "^4.0.2"
   }
 }

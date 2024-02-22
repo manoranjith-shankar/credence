@@ -1,5 +1,5 @@
-const AppHandler = artifacts.require("AppHandler");
+const Verifier = artifacts.require("Verifier");
 
 module.exports = function(deployer) {
-  deployer.deploy(AppHandler);
+  deployer.deploy(Verifier);
 };
