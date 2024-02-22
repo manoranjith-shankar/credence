@@ -5,9 +5,9 @@ import { Button } from "@nextui-org/react";
 
 const FileUpload: React.FC = () => {
   return (
-    <div className="flex flex-row">
-      <div className="w-1/2 p-6">
-        <Card className="py-8 w-64 ">
+    <div className="flex flex-col md:flex-row">
+      <div className="w-full md:w-1/2 p-6">
+        <Card className="py-8 w-full md:w-64">
           <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
             <p className="uppercase text-xl font-size: 8rem font-bold ">
               Issue New Credential

@@ -1,3 +1,5 @@
+'use client'
+
 import { title } from "@/components/primitives";
 import React from 'react';
 import FileUpload from '@/components/FileUpload';
