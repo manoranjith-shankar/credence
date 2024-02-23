@@ -394,3 +394,63 @@ function isRegisteredUser(address userAddress) external view returns (bool) {
     );
 }
 }
+
+// Function to add a new company issuer
+    function addCompanyIssuer(
+        string memory companyName,
+        string memory companyRegistrationNumber,
+        string memory companyRegistrationCertHash,
+        string memory companyEmail,
+        uint64 companyPhone, 
+        string memory companyRegisteredAddress, 
+        bool isVerified
+    ) public {
+        require(isVerified == true, "Email verification required to confirm company registration");
+        Company storage newCompany = companies[companyName];
+        require(newCompany.companyAdminAddress == address(0), "Company already exists");
+        newCompany.companyName = companyName;
+        newCompany.companyRegistrationNumber = companyRegistrationNumber;
+        newCompany.companyRegistrationCertHash = companyRegistrationCertHash;
+        newCompany.companyEmail = companyEmail;
+        newCompany.companyPhone = companyPhone;
+        newCompany.companyRegisteredAddress = companyRegisteredAddress;
+        newCompany.companyAdminAddress = msg.sender;
+    }
+
+    // Function to add a new event issuer
+    function addEventIssuer(
+        string memory eventName, 
+        string memory eventOrganizer, 
+        string[] memory eventSponsors, 
+        string memory organizerRegistrationNumber, 
+        string memory organizerRegistrationCertHash, 
+        string memory organizerRegisteredAddress, 
+        uint64 organizerPhone, 
+        address organizerAdminAddress
+    ) public {
+        Event storage newEvent = events[eventName];
+        require(newEvent.organizerAdminAddress == address(0), "Event already exists");
+        newEvent.eventName = eventName;
+        newEvent.eventOrganizer = eventOrganizer;
+        newEvent.eventSponsors = eventSponsors;
+        newEvent.organizerRegistrationNumber = organizerRegistrationNumber;
+        newEvent.organizerRegistrationCertHash = organizerRegistrationCertHash;
+        newEvent.organizerRegisteredAddress = organizerRegisteredAddress;
+        newEvent.organizerPhone = organizerPhone;
+        newEvent.organizerAdminAddress = organizerAdminAddress;
+    }
+
+    // Function to add a new recipient
+    function addRecipient(
+        string memory recipientName, 
+        string memory recipientEmail, 
+        string memory recipientPhone, 
+        address recipientAddress
+    ) public {
+        Recipient storage newRecipient = recipients[recipientName];
+        require(newRecipient.recipientAddress == address(0), "Recipient already exists");
+        newRecipient.recipientName = recipientName;
+        newRecipient.recipientEmail = recipientEmail;
+        newRecipient.recipientPhone = recipientPhone;
+        newRecipient.recipientAddress = recipientAddress;
+    }

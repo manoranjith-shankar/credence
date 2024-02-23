@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import './verifier.sol';
 
-contract CredentialSystem {
+contract CredentialSystem is Verifier{
     
     struct Institution {
         string institutionName;
@@ -62,6 +63,11 @@ contract CredentialSystem {
         require(institutions[_institutionId].institutionAdminAddress == msg.sender, "Only institution admin can perform this action");
         _;
     }
+
+    modifier onlyInstitution(string memory _institutionId) {
+        require(institutions[_institutionId].institutionAdminAddress == msg.sender, "Only institution admin can perform this action");
+        _;
+    }
     
     modifier onlyCompanyAdmin(string memory _companyId) {
         require(companies[_companyId].companyAdminAddress == msg.sender, "Only company admin can perform this action");
@@ -77,86 +83,69 @@ contract CredentialSystem {
         require(recipients[_recipientId].recipientAddress == msg.sender, "Only recipient can perform this action");
         _;
     }
-
-    // Function to add a new educational issuer (institution)
+    
     function addEducationalIssuer(
-        string memory aicteId, 
+        string memory aicteId,
         string memory institutionName, 
         string memory institutionRegisteredAddress, 
         string memory institutionEmail,
         bool isVerified,
         uint64 institutionPhone
-    ) public returns (string memory) {
+    ) public onlyInstitutionAdmin(aicteId) payable returns (string memory) {
         require(isVerified == true, "Email verification required to confirm institution registration");
+        require(msg.value == 0.1 ether, "Please pay an upfront amount of 0.1 ether to register your institution");
+
+        // Check if the admin address already exists as the admin of another institution
+        require(institutions[aicteId].institutionAdminAddress != msg.sender, "Caller is already the admin of another institution");
+
+        // Check if the institution already exists for the given aicteId
+        require(institutions[aicteId].institutionAdminAddress == address(0), "Institution already exists");
+
+        // Create a new institution entry
         Institution storage newInstitution = institutions[aicteId];
-        require(newInstitution.institutionAdminAddress == address(0), "Institution already exists");
         newInstitution.institutionName = institutionName;
         newInstitution.institutionRegisteredAddress = institutionRegisteredAddress;
         newInstitution.institutionEmail = institutionEmail;
         newInstitution.institutionPhone = institutionPhone;
         newInstitution.institutionAdminAddress = msg.sender;
+
+        // Refund the initial 0.1 ETH back to the msg.sender (adminAddress)
+        payable(msg.sender).transfer(msg.value);
+
         return aicteId;
     }
 
-    // Function to add a new company issuer
-    function addCompanyIssuer(
-        string memory companyName,
-        string memory companyRegistrationNumber,
-        string memory companyRegistrationCertHash,
-        string memory companyEmail,
-        uint64 companyPhone, 
-        string memory companyRegisteredAddress, 
-        bool isVerified
-    ) public {
-        require(isVerified == true, "Email verification required to confirm company registration");
-        Company storage newCompany = companies[companyName];
-        require(newCompany.companyAdminAddress == address(0), "Company already exists");
-        newCompany.companyName = companyName;
-        newCompany.companyRegistrationNumber = companyRegistrationNumber;
-        newCompany.companyRegistrationCertHash = companyRegistrationCertHash;
-        newCompany.companyEmail = companyEmail;
-        newCompany.companyPhone = companyPhone;
-        newCompany.companyRegisteredAddress = companyRegisteredAddress;
-        newCompany.companyAdminAddress = msg.sender;
+    function getEduInstitutionInfo(
+    string memory aicteId
+    ) public onlyInstitutionAdmin(aicteId) view returns (Institution memory) {
+    Institution memory institution = institutions[aicteId];
+    require(institution.institutionAdminAddress == msg.sender, "Caller is not the admin of this institution");
+    return institution;
     }
 
-    // Function to add a new event issuer
-    function addEventIssuer(
-        string memory eventName, 
-        string memory eventOrganizer, 
-        string[] memory eventSponsors, 
-        string memory organizerRegistrationNumber, 
-        string memory organizerRegistrationCertHash, 
-        string memory organizerRegisteredAddress, 
-        uint64 organizerPhone, 
-        address organizerAdminAddress
-    ) public {
-        Event storage newEvent = events[eventName];
-        require(newEvent.organizerAdminAddress == address(0), "Event already exists");
-        newEvent.eventName = eventName;
-        newEvent.eventOrganizer = eventOrganizer;
-        newEvent.eventSponsors = eventSponsors;
-        newEvent.organizerRegistrationNumber = organizerRegistrationNumber;
-        newEvent.organizerRegistrationCertHash = organizerRegistrationCertHash;
-        newEvent.organizerRegisteredAddress = organizerRegisteredAddress;
-        newEvent.organizerPhone = organizerPhone;
-        newEvent.organizerAdminAddress = organizerAdminAddress;
-    }
-
-    // Function to add a new recipient
-    function addRecipient(
-        string memory recipientName, 
-        string memory recipientEmail, 
-        string memory recipientPhone, 
+    function issueEduCredential(
+        string memory aicteId,
+        string memory certType,
+        string memory certName,
+        string memory certIssuanceDate,
+        string memory certUploadHash,
+        string memory recipientName,
+        string memory recipientEdUid,
         address recipientAddress
-    ) public {
-        Recipient storage newRecipient = recipients[recipientName];
-        require(newRecipient.recipientAddress == address(0), "Recipient already exists");
-        newRecipient.recipientName = recipientName;
-        newRecipient.recipientEmail = recipientEmail;
-        newRecipient.recipientPhone = recipientPhone;
-        newRecipient.recipientAddress = recipientAddress;
+    ) public onlyInstitutionAdmin(aicteId) returns (string memory) {
+        require(institutions[aicteId].institutionAdminAddress == msg.sender, "Only institution admin can issue credentials");
+        require(recipients[recipientEdUid].recipientAddress == recipientAddress, "Recipient not found");
+        
+        // Create a new credential entry
+        Credential storage newCredential = credentials[certUploadHash];
+        newCredential.certType = certType;
+        newCredential.certName = certName;
+        newCredential.certIssuanceDate = certIssuanceDate;
+        newCredential.certUploadHash = certUploadHash;
+        newCredential.recipientName = recipientName;
+        newCredential.recipientEdUid = recipientEdUid;
+        newCredential.recipientAddress = recipientAddress;
+        
+        return certUploadHash;
     }
-
-    // Add other functions as needed
 }

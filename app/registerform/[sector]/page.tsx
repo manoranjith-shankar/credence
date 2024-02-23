@@ -8,7 +8,6 @@ export default function BlogPost( { params }: { params: { sector: string } } ) {
   const[currentParam , setCurrentParam] = useState(params.sector) 
 
   console.log(currentParam);
-  
 
   return (
     <div>
@@ -28,5 +27,4 @@ export default function BlogPost( { params }: { params: { sector: string } } ) {
 
     </div>
   );
-
 }

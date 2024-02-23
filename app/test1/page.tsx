@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState , useEffect } from 'react';
+import React, { useState , useEffect, useRef } from 'react';
 import { initialize, ZoKratesProvider } from "zokrates-js";
-import sourceCode from 'raw-loader!../zkp/test.zok';
+import sourceCode from 'raw-loader!../zkp/main.zok';
 // the location of this .zok file is @/zkp/test.zok, but we can only go ../
 import Verifier from '@/backend/deployedContracts/Verifier.json'
 import { useReadContract } from 'wagmi';
@@ -19,7 +19,7 @@ function App() {
   const [zokratesProvider, setZokratesProvider] =
   useState<ZoKratesProvider>(null);
   const [verifier, setVerifier] = useState("")
-  const [proof1, setProof] = useState()
+  const proofRef = useRef<any[]>([])
   const [a, setA] = useState('');
   const [b, setB] = useState('');
   const [output, setOutput] = useState('');
@@ -46,13 +46,14 @@ function App() {
     // generate proof
     const proof = zokratesProvider.generateProof(program.program, witness, pk);
     const formatedProof = zokratesProvider.utils.formatProof(proof);
-    setProof(formatedProof)
-    console.log(formatedProof, '1')
+    proofRef.current = formatedProof;
+    
+    console.log(proofRef.current, '1')
 
     // export solidity verifier
     const verifier = zokratesProvider.exportSolidityVerifier(vk);
     setVerifier(verifier)
-
+    
     // verify the proof
     const isValid = zokratesProvider.verify(vk, proof);
       
@@ -63,17 +64,22 @@ function App() {
     }
   };
 
+  const testProof1 = [["0x07d63dc9eb8f90ade90d153a5f483a08f6e839c165ecd339b6ae658af875046f","0x168587f382e60dec5ad314bb96c2938f6285e6886f34cea833adcf4c1e565535"],[["0x1606a5fa4fc0057ae2ce2c4a90f591c6ace30dd4726b2899f46a122286ba3e3b","0x13f2e065a0c075f6dc64af023ba4ee11fa96b39c367b0503864c25b79e1cf168"],["0x26c9b6b1f8f8bc887fb8f0f01b5d4536715122b9bf464c1b433a830d2261afca","0x0e7f1de63ca9f2c3329ce9e621fcd3c002ce5865ec84a8ec5187dca4111486a6"]],["0x00edae67a4b3c9fc1c5672d44626192e4213c3dc66b0357732d34c2b41c62ba5","0x0d0b5a7dd38f561ed0773110eb45b03d2d0718e2fc4c720c7ce178a7c81c9524"]]
+  const testProof2 = ["0x0000000000000000000000000000000000000000000000000000000000000001"]
   const result = useReadContract({
     address: contractAddress,
     abi,
     functionName: 'verifyTx',
-    proof1,
+    args: [testProof1, testProof2],
+    chainId: 80001
   });
-  console.log(result, 'outData')
+  console.log(result.status, 'outData1')
+  console.log(result.data, 'outData2')
+  console.log(result, 'outData3')
 
   const copyVerifierCode = () => {
     const textarea = document.createElement('textarea');
-    textarea.value = proof1;
+    textarea.value = proofRef.current;
     document.body.appendChild(textarea);
     textarea.select();
     document.execCommand('copy');
@@ -88,7 +94,7 @@ function App() {
       <button onClick={runZokrates}>Run ZoKrates</button>
       <pre>{output}</pre>
       <div>
-        {proof1}
+        {proofRef.current}
       </div>
       {verifier && <button onClick={copyVerifierCode}>Copy Verifier Code</button>}
     </div>
