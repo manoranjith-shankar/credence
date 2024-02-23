@@ -41,7 +41,7 @@ function App() {
     const { pk, vk } = zokratesProvider.setup(program.program);
     
     // compute witness
-    const { witness, output } = zokratesProvider.computeWitness(program, [a, b]);
+    const { witness } = zokratesProvider.computeWitness(program, [a, b]);
 
     // generate proof
     const proof = zokratesProvider.generateProof(program.program, witness, pk);
