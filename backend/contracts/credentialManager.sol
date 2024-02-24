@@ -48,6 +48,7 @@ contract CredentialSystem is Verifier{
         string recipientName;
         string recipientEdUid;
         address recipientAddress;
+        string zkProof;
     }
     
     mapping(string => Institution) institutions;
@@ -56,16 +57,11 @@ contract CredentialSystem is Verifier{
     mapping(string => Recipient) recipients;
     mapping(string => Credential) credentials;
     mapping(string => string) sharedDocuments;
-    mapping(string => string) accessTokens;
+    mapping(address => string[]) zkProofsByAddress;
     
     // Modifiers
-    modifier onlyInstitutionAdmin(string memory _institutionId) {
-        require(institutions[_institutionId].institutionAdminAddress == msg.sender, "Only institution admin can perform this action");
-        _;
-    }
-
-    modifier onlyInstitution(string memory _institutionId) {
-        require(institutions[_institutionId].institutionAdminAddress == msg.sender, "Only institution admin can perform this action");
+    modifier onlyInstitutionAdmin(string memory _aicteId) {
+        require(institutions[_aicteId].institutionAdminAddress == msg.sender, "Only institution admin can perform this action");
         _;
     }
     
@@ -131,10 +127,15 @@ contract CredentialSystem is Verifier{
         string memory certUploadHash,
         string memory recipientName,
         string memory recipientEdUid,
-        address recipientAddress
+        address recipientAddress,
+        string memory zkProof
     ) public onlyInstitutionAdmin(aicteId) returns (string memory) {
         require(institutions[aicteId].institutionAdminAddress == msg.sender, "Only institution admin can issue credentials");
         require(recipients[recipientEdUid].recipientAddress == recipientAddress, "Recipient not found");
+
+        zkProof = '';
+        zkProofsByAddress[recipients[recipientEdUid].recipientAddress].push(zkProof);
+
         
         // Create a new credential entry
         Credential storage newCredential = credentials[certUploadHash];
@@ -145,21 +146,44 @@ contract CredentialSystem is Verifier{
         newCredential.recipientName = recipientName;
         newCredential.recipientEdUid = recipientEdUid;
         newCredential.recipientAddress = recipientAddress;
+        newCredential.zkProof = zkProof;
         
         return certUploadHash;
     }
 
-    function testPayment(uint _number) public payable returns (bool) {
-        require(msg.value == 0.00001 ether, "Please pay an upfront amount of 0.1 ether");
-        payable(msg.sender).transfer(msg.value);
-        if(_number == 1) {
-            return true;
-        } else {
-            return false;
-        }
+    function getCredentialInfo(string memory certUploadHash, string memory aicteId) onlyInstitutionAdmin(aicteId) public view returns (
+    string memory certType,
+    string memory certName,
+    string memory certIssuanceDate,
+    string memory recipientName,
+    string memory recipientEdUid,
+    address recipientAddress
+    ) {
+    
+    Credential storage credential = credentials[certUploadHash];
+    
+    certType = credential.certType;
+    certName = credential.certName;
+    certIssuanceDate = credential.certIssuanceDate;
+    recipientName = credential.recipientName;
+    recipientEdUid = credential.recipientEdUid;
+    recipientAddress = credential.recipientAddress;
+}
+
+    function createZKProof(
+        string memory certUploadHash,
+        string memory zkProof
+    ) public onlyRecipient(certUploadHash) {
+        credentials[certUploadHash].zkProof = zkProof;
     }
 
-    function returnParam(string memory _param) public pure returns (string memory) {
-        return _param;
+    // New function to map zk proof to an address
+    function mapZKProofToAddress(address _address, string memory zkProof) public {
+        zkProofsByAddress[_address].push(zkProof);
+    }
+    
+    // New function to retrieve all zk proofs associated with an address
+    function getZKProofsByAddress(address _address) public view returns (string[] memory) {
+        return zkProofsByAddress[_address];
     }
 }
