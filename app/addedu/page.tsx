@@ -1,11 +1,8 @@
 'use client'
 
 import React, { useState } from 'react';
-import useContractWrite from '@/components/hooks/useContractWrite';
-import { parseEther } from 'viem';
 import toast from 'react-hot-toast';
 import useEthers from '@/components/hooks/useEthers';
-import { ethers } from 'ethers';
 
 function Test() {
     const [aicteId, setAicteId] = useState('');
@@ -24,24 +21,19 @@ function Test() {
                 duration: 3000,
             });
 
-            const tx = await contract.returnParam("0z");
-
-            console.log(tx);
+            const tx = await contract.addEducationalIssuer(
+                aicteId,
+                institutionName,
+                institutionRegisteredAddress,
+                institutionEmail,
+                isVerified,
+                institutionPhone
+            );
 
             const receipt = await tx.wait();
-            // const data = {
-            //     param: returnParam._param,
-            // }
-            console.log(data);
-
-            toast.success('Transaction successful');
-
-            // Display the boolean result to the user
-            const isSuccessful = receipt.status === 1;
-            console.log('Transaction status:', isSuccessful);
-            toast.success(`Transaction status: ${isSuccessful}`);
+            toast.success('Transaction successful. user created successfully');
         } catch (e) {
-            toast.error('Transaction failed');
+            toast.error('pleas pay the upfront amount, Transaction failed.');
             console.log(e);
         }
     };

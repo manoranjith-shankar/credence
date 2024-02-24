@@ -38,6 +38,8 @@ contract CredentialSystem is Verifier{
         string recipientEmail;
         string recipientPhone;
         address recipientAddress;
+        string recipientOrg;
+        bool isVerified;
     }
     
     struct Credential {
@@ -49,6 +51,7 @@ contract CredentialSystem is Verifier{
         string recipientEdUid;
         address recipientAddress;
         string zkProof;
+        bool isIssued;
     }
     
     mapping(string => Institution) institutions;
@@ -87,7 +90,7 @@ contract CredentialSystem is Verifier{
         string memory institutionEmail,
         bool isVerified,
         uint64 institutionPhone
-    ) public onlyInstitutionAdmin(aicteId) payable returns (string memory) {
+    ) public payable returns (string memory) {
         require(isVerified == true, "Email verification required to confirm institution registration");
         require(msg.value == 0.1 ether, "Please pay an upfront amount of 0.1 ether to register your institution");
 
@@ -131,11 +134,9 @@ contract CredentialSystem is Verifier{
         string memory zkProof
     ) public onlyInstitutionAdmin(aicteId) returns (string memory) {
         require(institutions[aicteId].institutionAdminAddress == msg.sender, "Only institution admin can issue credentials");
-        require(recipients[recipientEdUid].recipientAddress == recipientAddress, "Recipient not found");
 
         zkProof = '';
         zkProofsByAddress[recipients[recipientEdUid].recipientAddress].push(zkProof);
-
         
         // Create a new credential entry
         Credential storage newCredential = credentials[certUploadHash];
@@ -147,6 +148,7 @@ contract CredentialSystem is Verifier{
         newCredential.recipientEdUid = recipientEdUid;
         newCredential.recipientAddress = recipientAddress;
         newCredential.zkProof = zkProof;
+        newCredential.isIssued = true;
         
         return certUploadHash;
     }
@@ -159,7 +161,7 @@ contract CredentialSystem is Verifier{
     string memory recipientEdUid,
     address recipientAddress
     ) {
-    
+
     Credential storage credential = credentials[certUploadHash];
     
     certType = credential.certType;
@@ -172,18 +174,42 @@ contract CredentialSystem is Verifier{
 
     function createZKProof(
         string memory certUploadHash,
-        string memory zkProof
+        string memory zkProof,
+        address _address
     ) public onlyRecipient(certUploadHash) {
         credentials[certUploadHash].zkProof = zkProof;
+        mapZKProofToAddress(address _address);
     }
 
     // New function to map zk proof to an address
-    function mapZKProofToAddress(address _address, string memory zkProof) public {
+    function mapZKProofToAddress(address _address, string memory zkProof) private {
         zkProofsByAddress[_address].push(zkProof);
     }
     
     // New function to retrieve all zk proofs associated with an address
     function getZKProofsByAddress(address _address) public view returns (string[] memory) {
         return zkProofsByAddress[_address];
+    }
+
+    function addRecipient(
+        string memory recipientName,
+        string memory recipientEmail, 
+        string memory recipientPhone, 
+        string memory recipientOrg,
+        bool isVerified
+    ) public {
+        require(isVerified == true, "Email verification required to confirm recipient registration");
+        require(institutions[msg.sender].institutionAdminAddress == address(0), "Caller is an institution admin");
+        // Check if the recipient already exists for the given recipientEmail
+        require(recipients[recipientEmail].recipientAddress == address(0), "Recipient already exists");
+
+        // Create a new recipient entry
+        Recipient storage newRecipient = recipients[recipientEmail];
+        newRecipient.recipientName = recipientName;
+        newRecipient.recipientEmail = recipientEmail;
+        newRecipient.recipientPhone = recipientPhone;
+        newRecipient.recipientOrg = recipientOrg;
+        newRecipient.recipientAddress = msg.sender;
+        newRecipient.isVerified = isVerified;
     }
 }
