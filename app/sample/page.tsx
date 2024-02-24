@@ -145,7 +145,7 @@ const App: React.FC = () => {
               <b>Public : {selectedItem.Public}</b>
               <b>Private : {selectedItem.Private}</b>
               <p>Issued Date : {selectedItem.datetime}</p>
-              <div>
+              {/* <div>
                 <Dropdown backdrop="blur">
                   <DropdownTrigger>
                     <Button color="success" variant="bordered">
@@ -153,7 +153,7 @@ const App: React.FC = () => {
                     </Button>
                   </DropdownTrigger>
                   <DropdownMenu variant="faded" aria-label="Static Actions">
-                    <DropdownItem key="new">New file</DropdownItem>
+                    <DropdownItem key="new">Ne</DropdownItem>
                     <DropdownItem key="copy">Copy link</DropdownItem>
                     <DropdownItem key="edit">Edit file</DropdownItem>
                     <div
@@ -191,7 +191,7 @@ const App: React.FC = () => {
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
-              </div>
+              </div> */}
             </ModalBody>
             <ModalFooter>
               <Button color="default" variant="light" onPress={closeModal}>
