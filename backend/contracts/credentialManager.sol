@@ -148,4 +148,18 @@ contract CredentialSystem is Verifier{
         
         return certUploadHash;
     }
+
+    function testPayment(uint _number) public payable returns (bool) {
+        require(msg.value == 0.00001 ether, "Please pay an upfront amount of 0.1 ether");
+        payable(msg.sender).transfer(msg.value);
+        if(_number == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function returnParam(string memory _param) public pure returns (string memory) {
+        return _param;
+    }
 }

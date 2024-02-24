@@ -17921,12 +17921,12 @@
     "80001": {
       "events": {},
       "links": {},
-      "address": "0x5A5cCD4aa1C886d3Ac482311741284E7a6774FCc",
-      "transactionHash": "0x108ffd0fed2c2adf79415bfdbcc2508e8c5fa1b71dc102fcc376b884972e5633"
+      "address": "0xA619CF3190895D03a6f4EbDd42311A0294A3E867",
+      "transactionHash": "0x6755f9b00e2dba80b792abb8b169076457efed7ea98b326896acb1f6cf15334a"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2024-02-23T05:21:14.311Z",
+  "updatedAt": "2024-02-23T18:16:02.907Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
